@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedidos de Diseño · CTC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Poppins:wght@400;600;700&family=Mulish:wght@400;500;600&family=Gabarito:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --verde-oscuro:#001F19;
+    --blanco:#FFFFFF;
+    --menta-claro:#DAF2F0;
+    --teal:#6BE3D7;
+    --acento-claro:#DDDAFF;
+    --acento-claro2:#AEA7F9;
+    --acento-oscuro:#756DC8;
+    --acento-oscuro2:#5A52AD;
+    --texto-principal:#262626;
+    --texto-secundario:#3F3F3F;
+    --texto-muted:#888888;
+    --radius:16px;
+    --shadow:0 1px 2px rgba(0,31,25,0.06), 0 6px 20px rgba(0,31,25,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Mulish',Calibri,Arial,sans-serif;
+    background:var(--blanco);
+    color:var(--texto-principal);
+    min-height:100vh;
+  }
+  h1,h2,h3{margin:0;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;}
+
+  /* ---------- Header ---------- */
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:16px;
+    padding:28px clamp(20px,4vw,48px) 16px;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .logo-badge{
+    height:44px;display:flex;align-items:center;flex-shrink:0;
+  }
+  .logo-badge img{ height:100%; width:auto; display:block; }
+  .logo-fallback{
+    display:none;
+    height:44px;width:44px;border-radius:50%;
+    background:var(--verde-oscuro);color:var(--blanco);
+    align-items:center;justify-content:center;text-align:center;line-height:44px;
+    font-family:'Lora',Georgia,serif;font-size:14px;letter-spacing:0.5px;
+  }
+  .brand-text h1{
+    font-family:'Lora',Georgia,serif;font-weight:400;
+    font-size:clamp(22px,3vw,30px);color:var(--verde-oscuro);
+    line-height:1.15;
+  }
+  .brand-text h1 .accent{color:var(--acento-oscuro2);}
+  .brand-text .subtitle{
+    margin-top:4px;font-family:'Inter',Arial,sans-serif;
+    font-size:13px;color:var(--texto-muted);
+  }
+  .actions{display:flex;gap:10px;flex-shrink:0;}
+  .btn{
+    border:none;border-radius:999px;padding:11px 20px;
+    font-family:'Poppins',Arial,sans-serif;font-weight:600;font-size:13.5px;
+    display:inline-flex;align-items:center;gap:6px;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-primary{background:var(--acento-oscuro2);color:var(--blanco);}
+  .btn-primary:hover{background:var(--acento-oscuro);transform:translateY(-1px);box-shadow:var(--shadow);}
+  .btn-ghost{background:var(--blanco);color:var(--verde-oscuro);border:1px solid rgba(0,31,25,0.12);width:42px;height:42px;padding:0;justify-content:center;border-radius:50%;font-size:16px;}
+  .btn-ghost:hover{background:var(--menta-claro);}
+  .btn-outline{background:transparent;color:var(--verde-oscuro);border:1.5px solid var(--verde-oscuro);}
+  .btn-outline:hover{background:var(--verde-oscuro);color:var(--blanco);}
+  .btn-danger-outline{background:transparent;color:var(--acento-oscuro2);border:1.5px solid var(--acento-oscuro2);}
+  .btn-danger-outline:hover{background:var(--acento-oscuro2);color:var(--blanco);}
+  .btn-block{width:100%;justify-content:center;margin-top:6px;}
+  .btn-sm{padding:8px 14px;font-size:12.5px;}
+  .btn[disabled]{opacity:.5;cursor:not-allowed;}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    display:flex;gap:12px;flex-wrap:wrap;align-items:center;
+    padding:0 clamp(20px,4vw,48px) 18px;
+  }
+  #search{
+    flex:1;min-width:220px;max-width:360px;
+    padding:11px 16px;border-radius:999px;border:1px solid rgba(0,31,25,0.12);
+    background:var(--blanco);font-size:13.5px;color:var(--texto-principal);
+    outline:none;
+  }
+  #search:focus{border-color:var(--acento-oscuro);}
+  .chip-filters{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{
+    border:1px solid rgba(0,31,25,0.15);background:var(--blanco);
+    color:var(--texto-secundario);border-radius:999px;padding:8px 15px;
+    font-family:'Gabarito',Arial,sans-serif;font-size:12.5px;font-weight:600;
+    transition:all .15s ease;
+  }
+  .chip.active{background:var(--verde-oscuro);color:var(--blanco);border-color:var(--verde-oscuro);}
+
+  /* ---------- Board ---------- */
+  .board{
+    display:flex;gap:18px;padding:0 clamp(20px,4vw,48px) 40px;
+    overflow-x:auto;scroll-snap-type:x proximity;align-items:flex-start;
+  }
+  .column{
+    border-radius:20px;padding:14px;min-width:300px;flex:1 1 300px;
+    scroll-snap-align:start;
+    max-height:calc(100vh - 230px);display:flex;flex-direction:column;
+  }
+  .column[data-estado="nuevo"]{ background:#EFF8FF; }
+  .column[data-estado="proceso"]{ background:#FFEFE7; }
+  .column[data-estado="listo"]{ background:#DAF2F0; }
+  .column.drag-over{background:rgba(255,255,255,0.9);outline:2px dashed var(--acento-oscuro);}
+  .column-header{display:flex;align-items:center;gap:8px;padding:6px 8px 14px;}
+  .column-header h2{font-family:'Poppins',Arial,sans-serif;font-weight:700;font-size:14.5px;color:var(--verde-oscuro);}
+  .count-pill{
+    background:var(--blanco);color:var(--texto-secundario);
+    font-family:'Inter',Arial,sans-serif;font-size:11.5px;font-weight:500;
+    padding:2px 9px;border-radius:999px;
+  }
+  .column-body{overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:6px;flex:1;}
+  .empty-state{
+    font-family:'Inter',Arial,sans-serif;font-size:12.5px;color:var(--texto-muted);
+    text-align:center;padding:26px 10px;border:1.5px dashed rgba(0,31,25,0.15);border-radius:14px;
+  }
+
+  /* ---------- Card ---------- */
+  .card{
+    background:var(--blanco);border-radius:14px;padding:14px 15px;
+    box-shadow:var(--shadow);cursor:grab;
+    transition:transform .15s ease, box-shadow .15s ease;
+    border:1px solid transparent;
+  }
+  .card:hover{transform:translateY(-2px);border-color:rgba(117,109,200,0.25);}
+  .card:active{cursor:grabbing;}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;}
+  .card-title{font-family:'Poppins',Arial,sans-serif;font-weight:600;font-size:13.5px;color:var(--texto-principal);line-height:1.3;}
+  .badge{
+    font-family:'Gabarito',Arial,sans-serif;font-size:10px;font-weight:600;
+    padding:2.5px 9px;border-radius:999px;white-space:nowrap;flex-shrink:0;
+    background:var(--blanco);border:1.5px solid;
+  }
+  .badge-alta{color:#468EFF;border-color:#468EFF;}
+  .badge-media{color:#756DC8;border-color:#756DC8;}
+  .badge-baja{color:#6BE3D7;border-color:#6BE3D7;}
+  .card-tags-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:9px;}
+  .card-tag{
+    display:inline-block;font-family:'Gabarito',Arial,sans-serif;font-size:10.5px;
+    color:var(--texto-secundario);background:var(--menta-claro);
+    padding:3px 9px;border-radius:8px;
+  }
+  .card-assignee{
+    display:inline-block;font-family:'Gabarito',Arial,sans-serif;font-size:10.5px;font-weight:600;
+    color:var(--verde-oscuro);background:var(--blanco);border:1px solid rgba(0,31,25,0.15);
+    padding:3px 9px;border-radius:8px;
+  }
+  .card-meta{
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'Inter',Arial,sans-serif;font-size:11px;color:var(--texto-muted);
+  }
+  .stage-tracker{display:flex;align-items:center;gap:4px;}
+  .stage-dot{width:6px;height:6px;border-radius:50%;background:rgba(0,31,25,0.15);}
+  .stage-dot.filled{background:var(--acento-oscuro);}
+  .card-link-flag{color:var(--acento-oscuro2);font-weight:600;}
+  .card-overdue{color:var(--acento-oscuro2);font-weight:700;}
+
+  /* ---------- Overlay / Modal ---------- */
+  .overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,31,25,0.55);
+    align-items:center;justify-content:center;padding:20px;z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--blanco);border-radius:22px;max-width:480px;width:100%;
+    max-height:88vh;overflow-y:auto;padding:26px 26px 24px;
+    animation:pop .18s ease;
+  }
+  @keyframes pop{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+  .modal-header h3{font-family:'Lora',Georgia,serif;font-weight:400;font-size:21px;color:var(--verde-oscuro);}
+  .btn-close{
+    background:none;border:none;font-size:16px;color:var(--texto-muted);
+    width:32px;height:32px;border-radius:50%;
+  }
+  .btn-close:hover{background:var(--menta-claro);}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;font-family:'Gabarito',Arial,sans-serif;font-size:11.5px;font-weight:600;
+    color:var(--texto-secundario);margin-bottom:6px;
+  }
+  .field input,.field select,.field textarea{
+    width:100%;padding:10px 13px;border-radius:10px;
+    border:1px solid rgba(0,31,25,0.15);font-size:13.5px;color:var(--texto-principal);
+    outline:none;background:var(--blanco);
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--acento-oscuro);}
+  .field textarea{resize:vertical;min-height:70px;}
+  .field-row{display:flex;gap:10px;}
+  .field-row .field{flex:1;}
+  .segmented{display:flex;border-radius:10px;overflow:hidden;border:1px solid rgba(0,31,25,0.15);}
+  .segmented button{
+    flex:1;padding:9px 6px;background:var(--blanco);border:none;
+    font-family:'Gabarito',Arial,sans-serif;font-size:12px;font-weight:600;color:var(--texto-secundario);
+    border-right:1px solid rgba(0,31,25,0.12);
+  }
+  .segmented button:last-child{border-right:none;}
+  .segmented button.active{background:var(--verde-oscuro);color:var(--blanco);}
+  .meta-box{
+    background:var(--menta-claro);border-radius:12px;padding:12px 14px;margin-bottom:16px;
+    font-family:'Inter',Arial,sans-serif;font-size:11.5px;color:var(--texto-secundario);
+    display:flex;flex-direction:column;gap:3px;
+  }
+  .modal-footer{display:flex;gap:10px;margin-top:6px;}
+  .modal-footer .btn{flex:1;}
+  .help-text{font-family:'Inter',Arial,sans-serif;font-size:11px;color:var(--texto-muted);margin:-8px 0 14px;line-height:1.5;}
+  .settings-section{margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid rgba(0,31,25,0.08);}
+  .settings-section:last-of-type{border-bottom:none;}
+  .settings-section h4{font-family:'Poppins',Arial,sans-serif;font-size:13px;font-weight:700;color:var(--verde-oscuro);margin-bottom:4px;}
+  .privacy-note{
+    font-family:'Inter',Arial,sans-serif;font-size:10.5px;color:var(--texto-muted);
+    background:var(--menta-claro);padding:10px 12px;border-radius:10px;margin-top:14px;line-height:1.5;
+  }
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--verde-oscuro);color:var(--blanco);padding:12px 22px;border-radius:999px;
+    font-family:'Mulish',Arial,sans-serif;font-size:13px;opacity:0;pointer-events:none;
+    transition:all .25s ease;z-index:100;box-shadow:var(--shadow);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---------- Loading ---------- */
+  .loading-row{display:flex;justify-content:center;padding:60px 0;font-family:'Inter',Arial,sans-serif;color:var(--texto-muted);font-size:13px;}
+
+  @media (max-width:640px){
+    .board{flex-direction:column;overflow-x:visible;}
+    .column{min-width:100%;max-height:none;}
+    .field-row{flex-direction:column;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-badge">
+        <img src="logo-ctc.png" alt="Crack The Code" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+        <span class="logo-fallback">CTC</span>
+      </div>
+      <div class="brand-text">
+        <h1>Pedidos de <span class="accent">Diseño</span></h1>
+        <p class="subtitle">Deja tu pedido y sigue el estado en tiempo real</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="btnSettings" class="btn btn-ghost" title="Configurar notificaciones" aria-label="Configuración">⚙</button>
+      <button id="btnNuevo" class="btn btn-primary">+ Nuevo pedido</button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input id="search" type="text" placeholder="Buscar por título o solicitante…">
+    <div class="chip-filters" id="chipFilters">
+      <button class="chip active" id="btnTodos">Todos</button>
+      <button class="chip" data-group="prioridad" data-filter="Alta">Alta</button>
+      <button class="chip" data-group="prioridad" data-filter="Media">Media</button>
+      <button class="chip" data-group="prioridad" data-filter="Baja">Baja</button>
+      <button class="chip" data-group="asignado" data-filter="Sin asignar">Sin asignar</button>
+      <button class="chip" data-group="asignado" data-filter="Angela Díaz">Angela</button>
+      <button class="chip" data-group="asignado" data-filter="Marian Martinez">Marian</button>
+    </div>
+  </div>
+
+  <div id="loadingRow" class="loading-row">Cargando pedidos…</div>
+
+  <main class="board" id="board" style="display:none;">
+    <section class="column" data-estado="nuevo">
+      <div class="column-header"><h2>Nuevo</h2><span class="count-pill" id="countNuevo">0</span></div>
+      <div class="column-body" id="colNuevo"></div>
+    </section>
+    <section class="column" data-estado="proceso">
+      <div class="column-header"><h2>En proceso</h2><span class="count-pill" id="countProceso">0</span></div>
+      <div class="column-body" id="colProceso"></div>
+    </section>
+    <section class="column" data-estado="listo">
+      <div class="column-header"><h2>Listo</h2><span class="count-pill" id="countListo">0</span></div>
+      <div class="column-body" id="colListo"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Modal: Nuevo pedido -->
+<div class="overlay" id="overlayNuevo">
+  <div class="modal">
+    <div class="modal-header"><h3>Nuevo pedido</h3><button class="btn-close" data-close="overlayNuevo">✕</button></div>
+    <form id="formNuevo">
+      <div class="field">
+        <label for="nTitulo">Título del pedido</label>
+        <input id="nTitulo" type="text" placeholder="Ej: Post para Instagram — lanzamiento" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="nSolicitante">Tu nombre</label>
+          <input id="nSolicitante" type="text" placeholder="Quién pide esto" required>
+        </div>
+        <div class="field">
+          <label for="nPrioridad">Prioridad</label>
+          <select id="nPrioridad">
+            <option value="Baja">Baja</option>
+            <option value="Media" selected>Media</option>
+            <option value="Alta">Alta</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="nEmail">Tu email (para avisarte cuando esté lista)</label>
+        <input id="nEmail" type="email" placeholder="tunombre@empresa.com">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="nTipo">Tipo de pieza</label>
+          <select id="nTipo">
+            <option>Post / Redes sociales</option>
+            <option>Story</option>
+            <option>Presentación</option>
+            <option>Impreso</option>
+            <option>Web / Landing</option>
+            <option>Video / Motion</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="nFecha">Fecha límite (opcional)</label>
+          <input id="nFecha" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label for="nDescripcion">Descripción</label>
+        <textarea id="nDescripcion" placeholder="Cuenta qué necesitas, medidas, referencias, textos, etc." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Enviar pedido</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Detalle / edición -->
+<div class="overlay" id="overlayDetalle">
+  <div class="modal">
+    <div class="modal-header"><h3>Detalle del pedido</h3><button class="btn-close" data-close="overlayDetalle">✕</button></div>
+    <div class="meta-box" id="detMeta"></div>
+    <form id="formDetalle">
+      <input type="hidden" id="dId">
+      <div class="field">
+        <label for="dTitulo">Título</label>
+        <input id="dTitulo" type="text" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="dTipo">Tipo de pieza</label>
+          <select id="dTipo">
+            <option>Post / Redes sociales</option>
+            <option>Story</option>
+            <option>Presentación</option>
+            <option>Impreso</option>
+            <option>Web / Landing</option>
+            <option>Video / Motion</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dFecha">Fecha límite</label>
+          <input id="dFecha" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label for="dDescripcion">Descripción</label>
+        <textarea id="dDescripcion" required></textarea>
+      </div>
+      <div class="field">
+        <label for="dAsignado">Diseñador asignado</label>
+        <select id="dAsignado">
+          <option value="">Sin asignar</option>
+          <option value="Angela Díaz">Angela Díaz</option>
+          <option value="Marian Martinez">Marian Martinez</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Prioridad</label>
+        <div class="segmented" id="segPrioridad">
+          <button type="button" data-value="Baja">Baja</button>
+          <button type="button" data-value="Media">Media</button>
+          <button type="button" data-value="Alta">Alta</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Estado</label>
+        <div class="segmented" id="segEstado">
+          <button type="button" data-value="nuevo">Nuevo</button>
+          <button type="button" data-value="proceso">En proceso</button>
+          <button type="button" data-value="listo">Listo</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="dLink">Link de la pieza final</label>
+        <input id="dLink" type="url" placeholder="https://…">
+      </div>
+      <div class="help-text">Al pasar el pedido a <strong>Listo</strong> con un link cargado, se dispara la notificación automática con el link.</div>
+      <div class="modal-footer">
+        <button type="button" id="btnEliminar" class="btn btn-danger-outline">Eliminar</button>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Configuración -->
+<div class="overlay" id="overlaySettings">
+  <div class="modal">
+    <div class="modal-header"><h3>Notificaciones</h3><button class="btn-close" data-close="overlaySettings">✕</button></div>
+
+    <div class="settings-section">
+      <h4>Email (vía EmailJS)</h4>
+      <div class="help-text">Crea una cuenta gratis en emailjs.com, conecta tu casilla y arma una plantilla con las variables: <strong>{{subject}}</strong>, <strong>{{message}}</strong>, <strong>{{to_email}}</strong>. Con esto configurado, el equipo recibe un aviso por cada pedido nuevo, y quien lo solicitó recibe una confirmación al enviarlo y el link cuando la pieza está lista (si registró su email en el formulario).</div>
+      <div class="field">
+        <label for="cfgEmailDestino">Email del equipo (recibe cada pedido nuevo)</label>
+        <input id="cfgEmailDestino" type="email" placeholder="diseno@empresa.com">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="cfgServiceId">Service ID</label>
+          <input id="cfgServiceId" type="text">
+        </div>
+        <div class="field">
+          <label for="cfgTemplateId">Template ID</label>
+          <input id="cfgTemplateId" type="text">
+        </div>
+      </div>
+      <div class="field">
+        <label for="cfgPublicKey">Public Key</label>
+        <input id="cfgPublicKey" type="text">
+      </div>
+      <button type="button" id="btnTestEmail" class="btn btn-outline btn-sm">Enviar email de prueba</button>
+    </div>
+
+    <button type="button" id="btnGuardarConfig" class="btn btn-primary btn-block">Guardar configuración</button>
+    <div class="privacy-note">Esta configuración (incluidas las URLs y claves) se guarda en el almacenamiento compartido del dashboard y es visible para cualquier persona que tenga acceso a este link. No ingreses contraseñas ni claves sensibles de otros sistemas aquí.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase (base de datos real, en la nube, gratis) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script>
+(function(){
+  // ===== PEGÁ ACÁ LAS CLAVES DE TU PROYECTO DE FIREBASE =====
+  // Las consigues en: Firebase Console → ⚙ Configuración del proyecto → Tus apps → app Web (</>)
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyD66BZTi0AM3oo2vJmkm4GNTQycBbnrdqo",
+    authDomain: "pedidos-diseno-ctc.firebaseapp.com",
+    projectId: "pedidos-diseno-ctc",
+    storageBucket: "pedidos-diseno-ctc.firebasestorage.app",
+    messagingSenderId: "425867105302",
+    appId: "1:425867105302:web:6faf0402fc2e7c98a69137"
+  };
+  // ============================================================
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const db = firebase.firestore();
+
+  const ESTADOS = ['nuevo','proceso','listo'];
+  const TIPOS_DEFAULT = 'Post / Redes sociales';
+  let pedidos = [];
+  let config = {};
+  let filtroPrioridad = 'all';
+  let filtroAsignado = 'all';
+  let textoBusqueda = '';
+
+  function nowIso(){ return new Date().toISOString(); }
+  function fmtFecha(iso){
+    if(!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-CO', {day:'2-digit', month:'short', year:'numeric'});
+  }
+  function nowMonthKey(){
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  }
+  function fmtMes(mesKey){
+    if(!mesKey) return '';
+    const [y,m] = mesKey.split('-');
+    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    return `${meses[parseInt(m,10)-1]} ${y}`;
+  }
+  // Asigna el próximo número de pedido del mes actual usando una transacción (evita que dos pedidos
+  // creados al mismo tiempo se choquen con el mismo número). Si falla (por ejemplo, reglas de Firestore
+  // desactualizadas), no bloquea la creación del pedido: simplemente queda sin número.
+  async function obtenerSiguienteNumero(mesKey){
+    try{
+      const contadorRef = db.collection('contadores').doc(mesKey);
+      return await db.runTransaction(async (tx) => {
+        const snap = await tx.get(contadorRef);
+        const actual = snap.exists ? (snap.data().ultimo || 0) : 0;
+        const siguiente = actual + 1;
+        tx.set(contadorRef, { ultimo: siguiente, mes: mesKey }, { merge:true });
+        return siguiente;
+      });
+    }catch(e){
+      console.error('No se pudo asignar número de pedido', e);
+      return null;
+    }
+  }
+
+  async function loadConfig(){
+    try{
+      const snap = await db.collection('config').doc('settings').get();
+      return snap.exists ? snap.data() : {};
+    }catch(e){ console.error('load config failed', e); return {}; }
+  }
+  async function saveConfigRaw(cfg){
+    try{
+      await db.collection('config').doc('settings').set(cfg, { merge:true });
+      return true;
+    }catch(e){ console.error('save config failed', e); showToast('No se pudo guardar la configuración.'); return false; }
+  }
+
+  // ---------- Notifications ----------
+  // Envía un email individual vía EmailJS. No hace nada si falta algún dato de configuración o destinatario.
+  async function enviarEmail(to, subject, message, pedido){
+    const { emailjsServiceId, emailjsTemplateId, emailjsPublicKey } = config;
+    if(!emailjsServiceId || !emailjsTemplateId || !emailjsPublicKey || !to) return;
+    try{
+      await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          service_id: emailjsServiceId, template_id: emailjsTemplateId, user_id: emailjsPublicKey,
+          template_params: { to_email: to, subject, message, pedido_titulo: pedido.titulo, pedido_link: pedido.link || '' }
+        })
+      });
+    }catch(e){ console.error('email notify failed', e); }
+  }
+
+  // Al crear el pedido: avisa al equipo (emailDestino) y le manda una confirmación a quien lo pidió.
+  // Al marcarlo Listo con link: le avisa directamente a quien lo pidió, con el link.
+  async function notifyEmail(pedido, evento){
+    if(evento === 'nuevo'){
+      await enviarEmail(config.emailDestino, `Nuevo pedido de diseño: ${pedido.titulo}`,
+        `Solicitante: ${pedido.solicitante}\nEmail: ${pedido.emailSolicitante || '—'}\nTipo: ${pedido.tipo}\nPrioridad: ${pedido.prioridad}\n\n${pedido.descripcion || ''}`, pedido);
+      await enviarEmail(pedido.emailSolicitante, `Recibimos tu pedido: ${pedido.titulo}`,
+        `Hola ${pedido.solicitante}, recibimos tu pedido "${pedido.titulo}". Te avisaremos por este medio tan pronto la pieza esté lista.`, pedido);
+    } else {
+      await enviarEmail(pedido.emailSolicitante, `¡Tu pedido del equipo de diseño ya está listo!: ${pedido.titulo}`,
+        `Hola, ${pedido.solicitante},\n\n¡Buenas noticias! Tu solicitud de diseño ha sido completada y ya está disponible para revisión.\n\nVer entrega:\n👉 ${pedido.link}\n\nSi necesitas algún ajuste o tienes comentarios, puedes responder a este correo y con gusto lo revisaremos.\n\nGracias por confiar en el equipo de Diseño.\n\nSaludos,\n\nEquipo de Diseño`, pedido);
+    }
+  }
+
+  // ---------- CRUD ----------
+  async function crearPedido(data){
+    const mesPedido = nowMonthKey();
+    const numero = await obtenerSiguienteNumero(mesPedido);
+    const nuevo = {
+      titulo:data.titulo, descripcion:data.descripcion, solicitante:data.solicitante,
+      emailSolicitante:data.emailSolicitante || '', tipo:data.tipo, prioridad:data.prioridad, fechaLimite:data.fechaLimite || '',
+      estado:'nuevo', link:'', asignado:'', numero:numero, mesPedido:mesPedido, creado:nowIso(), actualizado:nowIso(),
+      notificadoNuevo:false, notificadoListo:false
+    };
+    try{
+      const ref = await db.collection('pedidos').add(nuevo);
+      showToast('Pedido enviado ✅');
+      const conId = {...nuevo, id: ref.id};
+      notifyEmail(conId, 'nuevo');
+      ref.update({ notificadoNuevo:true }).catch(e => console.error(e));
+      return true;
+    }catch(e){
+      console.error('crear pedido failed', e);
+      showToast('No se pudo guardar el pedido. Revisa la conexión e intenta de nuevo.');
+      return false;
+    }
+  }
+
+  async function actualizarPedido(id, cambios){
+    try{
+      const payload = {...cambios, actualizado:nowIso()};
+      await db.collection('pedidos').doc(id).update(payload);
+      const snap = await db.collection('pedidos').doc(id).get();
+      const actualizado = {...snap.data(), id};
+      if(actualizado.estado === 'listo' && actualizado.link && !actualizado.notificadoListo){
+        notifyEmail(actualizado, 'listo');
+        db.collection('pedidos').doc(id).update({ notificadoListo:true }).catch(e => console.error(e));
+      }
+      return true;
+    }catch(e){
+      console.error('actualizar pedido failed', e);
+      showToast('No se pudo guardar el cambio. Intenta de nuevo.');
+      return false;
+    }
+  }
+
+  async function eliminarPedido(id){
+    if(!confirm('¿Eliminar este pedido? Esta acción no se puede deshacer.')) return;
+    try{
+      await db.collection('pedidos').doc(id).delete();
+      closeOverlay('overlayDetalle');
+      showToast('Pedido eliminado');
+    }catch(e){
+      console.error('eliminar pedido failed', e);
+      showToast('No se pudo eliminar. Intenta de nuevo.');
+    }
+  }
+
+  // ---------- Render ----------
+  function stageTrackerHtml(estado){
+    const idx = ESTADOS.indexOf(estado);
+    return ESTADOS.map((e,i) => `<span class="stage-dot ${i<=idx ? 'filled':''}"></span>`).join('');
+  }
+  function badgeClass(prioridad){
+    if(prioridad === 'Alta') return 'badge-alta';
+    if(prioridad === 'Media') return 'badge-media';
+    return 'badge-baja';
+  }
+  function esVencido(pedido){
+    if(!pedido.fechaLimite || pedido.estado === 'listo') return false;
+    return new Date(pedido.fechaLimite) < new Date(new Date().toDateString());
+  }
+  function escapeHtml(str){
+    return (str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function filtrarPedidos(){
+    return pedidos.filter(p => {
+      if(filtroPrioridad !== 'all' && p.prioridad !== filtroPrioridad) return false;
+      if(filtroAsignado !== 'all'){
+        if(filtroAsignado === 'Sin asignar' && p.asignado) return false;
+        if(filtroAsignado !== 'Sin asignar' && p.asignado !== filtroAsignado) return false;
+      }
+      if(textoBusqueda){
+        const t = textoBusqueda.toLowerCase();
+        return (p.titulo||'').toLowerCase().includes(t) || (p.solicitante||'').toLowerCase().includes(t);
+      }
+      return true;
+    });
+  }
+
+  function render(){
+    const filtrados = filtrarPedidos();
+    const cols = { nuevo:[], proceso:[], listo:[] };
+    filtrados.forEach(p => { (cols[p.estado] || cols.nuevo).push(p); });
+
+    ['nuevo','proceso','listo'].forEach(estado => {
+      const contBody = document.getElementById('col' + capitalize(estado));
+      const contCount = document.getElementById('count' + capitalize(estado));
+      const items = cols[estado].sort((a,b) => new Date(b.creado) - new Date(a.creado));
+      contCount.textContent = items.length;
+      if(items.length === 0){
+        contBody.innerHTML = `<div class="empty-state">Sin pedidos por ahora</div>`;
+        return;
+      }
+      contBody.innerHTML = items.map(p => `
+        <div class="card" draggable="true" data-id="${p.id}">
+          <div class="card-top">
+            <div class="card-title">${escapeHtml(p.titulo)}</div>
+            <span class="badge ${badgeClass(p.prioridad)}">${p.prioridad}</span>
+          </div>
+          <div class="card-tags-row">
+            <span class="card-tag">${escapeHtml(p.tipo)}</span>
+            ${p.asignado ? `<span class="card-assignee">${escapeHtml(p.asignado.split(' ')[0])}</span>` : ''}
+          </div>
+          <div class="card-meta">
+            <span>${p.numero ? '#' + p.numero + ' · ' : ''}${escapeHtml(p.solicitante)}${p.link ? ' · <span class="card-link-flag">link ✓</span>' : ''}</span>
+            <div class="stage-tracker">${stageTrackerHtml(p.estado)}</div>
+          </div>
+          <div class="card-meta" style="margin-top:4px;"><span>Creado: ${fmtFecha(p.creado)}</span></div>
+          ${p.fechaLimite ? `<div class="card-meta" style="margin-top:4px;"><span class="${esVencido(p) ? 'card-overdue':''}">${esVencido(p) ? '⚠ ' : ''}Vence ${fmtFecha(p.fechaLimite)}</span></div>` : ''}
+        </div>
+      `).join('');
+    });
+  }
+  function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // ---------- Modals ----------
+  function openOverlay(id){ document.getElementById(id).classList.add('open'); }
+  function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => closeOverlay(btn.dataset.close));
+  });
+  document.querySelectorAll('.overlay').forEach(ov => {
+    ov.addEventListener('click', e => { if(e.target === ov) ov.classList.remove('open'); });
+  });
+
+  // ---------- Toast ----------
+  let toastTimer;
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // ---------- Nuevo pedido form ----------
+  document.getElementById('btnNuevo').addEventListener('click', () => {
+    document.getElementById('formNuevo').reset();
+    document.getElementById('nTipo').value = TIPOS_DEFAULT;
+    openOverlay('overlayNuevo');
+  });
+  document.getElementById('formNuevo').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+      titulo: document.getElementById('nTitulo').value.trim(),
+      solicitante: document.getElementById('nSolicitante').value.trim(),
+      emailSolicitante: document.getElementById('nEmail').value.trim(),
+      prioridad: document.getElementById('nPrioridad').value,
+      tipo: document.getElementById('nTipo').value,
+      fechaLimite: document.getElementById('nFecha').value,
+      descripcion: document.getElementById('nDescripcion').value.trim()
+    };
+    if(!data.titulo || !data.solicitante || !data.descripcion){
+      showToast('Falta completar título, nombre o descripción');
+      return;
+    }
+    const btn = e.target.querySelector('button[type=submit]');
+    btn.disabled = true;
+    const ok = await crearPedido(data);
+    btn.disabled = false;
+    if(ok) closeOverlay('overlayNuevo'); // si falló, dejamos el modal abierto con lo escrito para no perderlo
+  });
+
+  // ---------- Detalle / edición ----------
+  let detallePrioridadActual = 'Media';
+  let detalleEstadoActual = 'nuevo';
+
+  function abrirDetalle(id){
+    const p = pedidos.find(x => x.id === id);
+    if(!p) return;
+    document.getElementById('dId').value = p.id;
+    document.getElementById('dTitulo').value = p.titulo;
+    document.getElementById('dTipo').value = p.tipo;
+    document.getElementById('dFecha').value = p.fechaLimite || '';
+    document.getElementById('dDescripcion').value = p.descripcion;
+    document.getElementById('dLink').value = p.link || '';
+    document.getElementById('dAsignado').value = p.asignado || '';
+    detallePrioridadActual = p.prioridad;
+    detalleEstadoActual = p.estado;
+    marcarSegmented('segPrioridad', detallePrioridadActual);
+    marcarSegmented('segEstado', detalleEstadoActual);
+    document.getElementById('detMeta').innerHTML =
+      `<span><strong>N.° de pedido:</strong> ${p.numero ? '#' + p.numero + ' · ' + fmtMes(p.mesPedido) : 'sin asignar'}</span>` +
+      `<span><strong>Solicitante:</strong> ${escapeHtml(p.solicitante)}${p.emailSolicitante ? ' · ' + escapeHtml(p.emailSolicitante) : ' · sin email cargado'}</span>` +
+      `<span><strong>Creado:</strong> ${fmtFecha(p.creado)} · <strong>Actualizado:</strong> ${fmtFecha(p.actualizado)}</span>`;
+    openOverlay('overlayDetalle');
+  }
+
+  function marcarSegmented(contId, valor){
+    document.querySelectorAll('#' + contId + ' button').forEach(b => {
+      b.classList.toggle('active', b.dataset.value === valor);
+    });
+  }
+  document.getElementById('segPrioridad').addEventListener('click', e => {
+    if(e.target.tagName !== 'BUTTON') return;
+    detallePrioridadActual = e.target.dataset.value;
+    marcarSegmented('segPrioridad', detallePrioridadActual);
+  });
+  document.getElementById('segEstado').addEventListener('click', e => {
+    if(e.target.tagName !== 'BUTTON') return;
+    detalleEstadoActual = e.target.dataset.value;
+    marcarSegmented('segEstado', detalleEstadoActual);
+  });
+
+  document.getElementById('formDetalle').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('dId').value;
+    const cambios = {
+      titulo: document.getElementById('dTitulo').value.trim(),
+      tipo: document.getElementById('dTipo').value,
+      asignado: document.getElementById('dAsignado').value,
+      fechaLimite: document.getElementById('dFecha').value,
+      descripcion: document.getElementById('dDescripcion').value.trim(),
+      link: document.getElementById('dLink').value.trim(),
+      prioridad: detallePrioridadActual,
+      estado: detalleEstadoActual
+    };
+    const btn = e.target.querySelector('button[type=submit]');
+    btn.disabled = true;
+    const ok = await actualizarPedido(id, cambios);
+    btn.disabled = false;
+    if(ok){
+      closeOverlay('overlayDetalle');
+      showToast('Pedido actualizado ✅');
+    }
+  });
+  document.getElementById('btnEliminar').addEventListener('click', () => {
+    const id = document.getElementById('dId').value;
+    eliminarPedido(id);
+  });
+
+  // Card click (event delegation) + drag start
+  document.getElementById('board').addEventListener('click', e => {
+    const card = e.target.closest('.card');
+    if(card) abrirDetalle(card.dataset.id);
+  });
+  document.getElementById('board').addEventListener('dragstart', e => {
+    const card = e.target.closest('.card');
+    if(card) e.dataTransfer.setData('text/plain', card.dataset.id);
+  });
+  document.querySelectorAll('.column').forEach(col => {
+    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
+    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+    col.addEventListener('drop', e => {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      const nuevoEstado = col.dataset.estado;
+      const p = pedidos.find(x => x.id === id);
+      if(p && p.estado !== nuevoEstado) actualizarPedido(id, { estado: nuevoEstado });
+    });
+  });
+
+  // ---------- Toolbar ----------
+  document.getElementById('search').addEventListener('input', e => {
+    textoBusqueda = e.target.value;
+    render();
+  });
+  document.getElementById('chipFilters').addEventListener('click', e => {
+    const btn = e.target.closest('.chip');
+    if(!btn) return;
+    const group = btn.dataset.group;
+    if(!group){
+      filtroPrioridad = 'all';
+      filtroAsignado = 'all';
+      document.querySelectorAll('#chipFilters .chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+      return;
+    }
+    if(group === 'prioridad') filtroPrioridad = btn.dataset.filter;
+    if(group === 'asignado') filtroAsignado = btn.dataset.filter;
+    document.getElementById('btnTodos').classList.remove('active');
+    document.querySelectorAll('#chipFilters .chip[data-group="' + group + '"]').forEach(c => c.classList.toggle('active', c === btn));
+    render();
+  });
+
+  // ---------- Settings ----------
+  document.getElementById('btnSettings').addEventListener('click', () => {
+    document.getElementById('cfgEmailDestino').value = config.emailDestino || '';
+    document.getElementById('cfgServiceId').value = config.emailjsServiceId || '';
+    document.getElementById('cfgTemplateId').value = config.emailjsTemplateId || '';
+    document.getElementById('cfgPublicKey').value = config.emailjsPublicKey || '';
+    openOverlay('overlaySettings');
+  });
+  document.getElementById('btnGuardarConfig').addEventListener('click', async () => {
+    const cfg = {
+      emailDestino: document.getElementById('cfgEmailDestino').value.trim(),
+      emailjsServiceId: document.getElementById('cfgServiceId').value.trim(),
+      emailjsTemplateId: document.getElementById('cfgTemplateId').value.trim(),
+      emailjsPublicKey: document.getElementById('cfgPublicKey').value.trim()
+    };
+    const ok = await saveConfigRaw(cfg);
+    if(ok){ config = cfg; showToast('Configuración guardada ✅'); closeOverlay('overlaySettings'); }
+  });
+  document.getElementById('btnTestEmail').addEventListener('click', () => {
+    const cfgBackup = config;
+    config = {
+      ...config,
+      emailDestino: document.getElementById('cfgEmailDestino').value.trim(),
+      emailjsServiceId: document.getElementById('cfgServiceId').value.trim(),
+      emailjsTemplateId: document.getElementById('cfgTemplateId').value.trim(),
+      emailjsPublicKey: document.getElementById('cfgPublicKey').value.trim()
+    };
+    if(!config.emailDestino || !config.emailjsServiceId || !config.emailjsTemplateId || !config.emailjsPublicKey){
+      showToast('Completa los 4 campos de Email primero');
+      config = cfgBackup;
+      return;
+    }
+    notifyEmail({ titulo:'Pedido de prueba', solicitante:'Vos', emailSolicitante:config.emailDestino, link:'https://ejemplo.com/pieza-final' }, 'listo');
+    showToast('Email de prueba enviado a ' + config.emailDestino);
+    config = cfgBackup;
+  });
+
+  // ---------- Init ----------
+  async function init(){
+    config = await loadConfig();
+    // onSnapshot empuja los cambios a todos los que tengan el dashboard abierto, en tiempo real, sin pedir refresh.
+    db.collection('pedidos').onSnapshot(snapshot => {
+      pedidos = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+      document.getElementById('loadingRow').style.display = 'none';
+      document.getElementById('board').style.display = 'flex';
+      render();
+    }, err => {
+      console.error('listener error', err);
+      document.getElementById('loadingRow').textContent = 'No se pudo conectar con la base de datos. Revisa las claves de Firebase en el código.';
+    });
+  }
+  init();
+})();
+</script>
+</body>
+</html>
