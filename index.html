@@ -146,6 +146,9 @@
     border:1px solid transparent;
   }
   .card:hover{transform:translateY(-2px);border-color:rgba(117,109,200,0.25);}
+  .column[data-estado="nuevo"] .card:hover{ border-color:#BFE1FC; }
+  .column[data-estado="proceso"] .card:hover{ border-color:#FFAA7D; }
+  .column[data-estado="listo"] .card:hover{ border-color:#6BE3D7; }
   .card:active{cursor:grabbing;}
   .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;}
   .card-title{font-family:'Poppins',Arial,sans-serif;font-weight:600;font-size:13.5px;color:var(--texto-principal);line-height:1.3;}
@@ -163,6 +166,7 @@
     color:var(--texto-secundario);background:var(--menta-claro);
     padding:3px 9px;border-radius:8px;
   }
+  .card-tag-area{ background:#DDDAFF; color:#756DC8; }
   .card-assignee{
     display:inline-block;font-family:'Gabarito',Arial,sans-serif;font-size:10.5px;font-weight:600;
     color:var(--verde-oscuro);background:var(--blanco);border:1px solid rgba(0,31,25,0.15);
@@ -380,8 +384,8 @@
         <textarea id="nDescripcion" placeholder="Cuenta qué necesitas, medidas, referencias, textos, etc." required></textarea>
       </div>
       <div class="field">
-        <label for="nLinkBrief">Link de Drive con el brief (Doc, Sheet, etc.) — opcional</label>
-        <input id="nLinkBrief" type="url" placeholder="https://docs.google.com/…">
+        <label for="nLinkBrief">Links de Drive con el brief (Doc, Sheet, etc.) — opcional</label>
+        <textarea id="nLinkBrief" placeholder="Pegá uno o más, uno por línea&#10;https://docs.google.com/…&#10;https://docs.google.com/…" style="min-height:56px;"></textarea>
       </div>
       <button type="submit" class="btn btn-primary btn-block">Enviar pedido</button>
     </form>
@@ -422,8 +426,8 @@
         <textarea id="dDescripcion" required></textarea>
       </div>
       <div class="field">
-        <label for="dLinkBrief">Link de Drive con el brief (Doc, Sheet, etc.)</label>
-        <input id="dLinkBrief" type="url" placeholder="https://docs.google.com/…">
+        <label for="dLinkBrief">Links de Drive con el brief (Doc, Sheet, etc.) — uno por línea</label>
+        <textarea id="dLinkBrief" placeholder="https://docs.google.com/…" style="min-height:56px;"></textarea>
       </div>
       <div class="field">
         <label for="dAsignado">Diseñador asignado</label>
@@ -597,7 +601,7 @@
   async function notifyEmail(pedido, evento){
     if(evento === 'nuevo'){
       await enviarEmail(config.emailDestino, `Nuevo pedido de diseño: ${pedido.titulo}`,
-        `Solicitante: ${pedido.solicitante}\nÁrea: ${pedido.area || '—'}\nEmail: ${pedido.emailSolicitante || '—'}\nTipo: ${pedido.tipo}\nPrioridad: ${pedido.prioridad}\n\n${pedido.descripcion || ''}${pedido.linkBrief ? `\n\nBrief (Drive): ${pedido.linkBrief}` : ''}`, pedido);
+        `Solicitante: ${pedido.solicitante}\nÁrea: ${pedido.area || '—'}\nEmail: ${pedido.emailSolicitante || '—'}\nTipo: ${pedido.tipo}\nPrioridad: ${pedido.prioridad}\n\n${pedido.descripcion || ''}${briefLinks(pedido).length ? `\n\nBrief (Drive):\n${briefLinks(pedido).join('\n')}` : ''}`, pedido);
       await enviarEmail(pedido.emailSolicitante, `Recibimos tu pedido: ${pedido.titulo}`,
         `Hola ${pedido.solicitante}, recibimos tu pedido "${pedido.titulo}". Te avisaremos por este medio tan pronto la pieza esté lista.`, pedido);
     } else {
@@ -613,7 +617,7 @@
     const nuevo = {
       titulo:data.titulo, descripcion:data.descripcion, solicitante:data.solicitante, area:data.area,
       emailSolicitante:data.emailSolicitante || '', tipo:data.tipo, prioridad:data.prioridad, fechaLimite:data.fechaLimite || '',
-      estado:'nuevo', link:'', linkBrief:data.linkBrief || '', asignado:'', numero:numero, mesPedido:mesPedido, creado:nowIso(), actualizado:nowIso(),
+      estado:'nuevo', link:'', linksBrief:data.linksBrief || [], asignado:'', numero:numero, mesPedido:mesPedido, creado:nowIso(), actualizado:nowIso(),
       notificadoNuevo:false, notificadoListo:false
     };
     try{
@@ -683,6 +687,17 @@
   function escapeHtml(str){
     return (str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
+  // Convierte el texto del textarea (uno por línea) en un array de links limpio.
+  function parsearLinks(texto){
+    return (texto || '').split('\n').map(s => s.trim()).filter(Boolean);
+  }
+  // Devuelve siempre un array, sea que el pedido tenga el campo viejo (linkBrief, un solo string)
+  // o el nuevo (linksBrief, array) — así los pedidos creados antes de este cambio siguen funcionando.
+  function briefLinks(p){
+    if(Array.isArray(p.linksBrief) && p.linksBrief.length) return p.linksBrief;
+    if(p.linkBrief) return [p.linkBrief];
+    return [];
+  }
 
   function filtrarPedidos(){
     return pedidos.filter(p => {
@@ -738,9 +753,9 @@
           </div>
           <div class="card-tags-row">
             <span class="card-tag">${escapeHtml(p.tipo)}</span>
-            ${p.area ? `<span class="card-tag">${escapeHtml(p.area)}</span>` : ''}
+            ${p.area ? `<span class="card-tag card-tag-area">${escapeHtml(p.area)}</span>` : ''}
             ${p.asignado ? `<span class="${assigneeClass(p.asignado)}">${escapeHtml(p.asignado.split(' ')[0])}</span>` : ''}
-            ${p.linkBrief ? `<a href="${p.linkBrief}" target="_blank" rel="noopener noreferrer" class="card-assignee" draggable="false" onclick="event.stopPropagation()">📎 brief</a>` : ''}
+            ${briefLinks(p).map((url, i) => `<a href="${url}" target="_blank" rel="noopener noreferrer" class="card-assignee" draggable="false" onclick="event.stopPropagation()">📎 brief${briefLinks(p).length > 1 ? ' ' + (i+1) : ''}</a>`).join('')}
           </div>
           <div class="card-meta">
             <span>${p.numero ? '#' + p.numero + ' · ' : ''}${escapeHtml(p.solicitante)}${p.link ? ` · <a href="${p.link}" target="_blank" rel="noopener noreferrer" class="card-link-flag" onclick="event.stopPropagation()">link ✓</a>` : ''}</span>
@@ -791,7 +806,7 @@
       tipo: document.getElementById('nTipo').value,
       fechaLimite: document.getElementById('nFecha').value,
       descripcion: document.getElementById('nDescripcion').value.trim(),
-      linkBrief: document.getElementById('nLinkBrief').value.trim()
+      linksBrief: parsearLinks(document.getElementById('nLinkBrief').value)
     };
     if(!data.titulo || !data.solicitante || !data.descripcion){
       showToast('Falta completar título, nombre o descripción');
@@ -816,7 +831,7 @@
     document.getElementById('dTipo').value = p.tipo;
     document.getElementById('dFecha').value = p.fechaLimite || '';
     document.getElementById('dDescripcion').value = p.descripcion;
-    document.getElementById('dLinkBrief').value = p.linkBrief || '';
+    document.getElementById('dLinkBrief').value = briefLinks(p).join('\n');
     document.getElementById('dLink').value = p.link || '';
     document.getElementById('dAsignado').value = p.asignado || '';
     detallePrioridadActual = p.prioridad;
@@ -855,7 +870,7 @@
       asignado: document.getElementById('dAsignado').value,
       fechaLimite: document.getElementById('dFecha').value,
       descripcion: document.getElementById('dDescripcion').value.trim(),
-      linkBrief: document.getElementById('dLinkBrief').value.trim(),
+      linksBrief: parsearLinks(document.getElementById('dLinkBrief').value),
       link: document.getElementById('dLink').value.trim(),
       prioridad: detallePrioridadActual,
       estado: detalleEstadoActual
