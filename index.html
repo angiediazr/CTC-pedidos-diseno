@@ -116,6 +116,8 @@
   .column[data-estado="nuevo"]{ background:#EFF8FF; }
   .column[data-estado="proceso"]{ background:#FFEFE7; }
   .column[data-estado="listo"]{ background:#DAF2F0; }
+  .column[data-estado="cancelado"]{ background:#F1F0EC; }
+  .column[data-estado="cancelado"] .card{ opacity:.7; }
   .column.drag-over{background:rgba(255,255,255,0.9);outline:2px dashed var(--acento-oscuro);}
   .column-header{display:flex;align-items:center;gap:8px;padding:6px 8px 14px;}
   .column-header h2{font-family:'Poppins',Arial,sans-serif;font-weight:700;font-size:14.5px;color:var(--verde-oscuro);}
@@ -160,6 +162,8 @@
     color:var(--verde-oscuro);background:var(--blanco);border:1px solid rgba(0,31,25,0.15);
     padding:3px 9px;border-radius:8px;
   }
+  .card-assignee-angela{ background:#001F19; border-color:#6BE3D7; color:#6BE3D7; }
+  .card-assignee-marian{ background:#001F19; border-color:#AEA7F9; color:#AEA7F9; }
   .card-meta{
     display:flex;justify-content:space-between;align-items:center;
     font-family:'Inter',Arial,sans-serif;font-size:11px;color:var(--texto-muted);
@@ -297,6 +301,10 @@
       <div class="column-header"><h2>Listo</h2><span class="count-pill" id="countListo">0</span></div>
       <div class="column-body" id="colListo"></div>
     </section>
+    <section class="column" data-estado="cancelado">
+      <div class="column-header"><h2>Cancelado</h2><span class="count-pill" id="countCancelado">0</span></div>
+      <div class="column-body" id="colCancelado"></div>
+    </section>
   </main>
 </div>
 
@@ -417,6 +425,7 @@
           <button type="button" data-value="nuevo">Nuevo</button>
           <button type="button" data-value="proceso">En proceso</button>
           <button type="button" data-value="listo">Listo</button>
+          <button type="button" data-value="cancelado">Cancelado</button>
         </div>
       </div>
       <div class="field">
@@ -630,6 +639,7 @@
 
   // ---------- Render ----------
   function stageTrackerHtml(estado){
+    if(estado === 'cancelado') return `<span style="font-family:'Inter',Arial,sans-serif;font-size:10px;color:var(--texto-muted);">cancelado</span>`;
     const idx = ESTADOS.indexOf(estado);
     return ESTADOS.map((e,i) => `<span class="stage-dot ${i<=idx ? 'filled':''}"></span>`).join('');
   }
@@ -638,8 +648,13 @@
     if(prioridad === 'Media') return 'badge-media';
     return 'badge-baja';
   }
+  function assigneeClass(asignado){
+    if(asignado === 'Angela Díaz') return 'card-assignee card-assignee-angela';
+    if(asignado === 'Marian Martinez') return 'card-assignee card-assignee-marian';
+    return 'card-assignee';
+  }
   function esVencido(pedido){
-    if(!pedido.fechaLimite || pedido.estado === 'listo') return false;
+    if(!pedido.fechaLimite || pedido.estado === 'listo' || pedido.estado === 'cancelado') return false;
     return new Date(pedido.fechaLimite) < new Date(new Date().toDateString());
   }
   function escapeHtml(str){
@@ -663,10 +678,10 @@
 
   function render(){
     const filtrados = filtrarPedidos();
-    const cols = { nuevo:[], proceso:[], listo:[] };
+    const cols = { nuevo:[], proceso:[], listo:[], cancelado:[] };
     filtrados.forEach(p => { (cols[p.estado] || cols.nuevo).push(p); });
 
-    ['nuevo','proceso','listo'].forEach(estado => {
+    ['nuevo','proceso','listo','cancelado'].forEach(estado => {
       const contBody = document.getElementById('col' + capitalize(estado));
       const contCount = document.getElementById('count' + capitalize(estado));
       const items = cols[estado].sort((a,b) => new Date(b.creado) - new Date(a.creado));
@@ -683,7 +698,7 @@
           </div>
           <div class="card-tags-row">
             <span class="card-tag">${escapeHtml(p.tipo)}</span>
-            ${p.asignado ? `<span class="card-assignee">${escapeHtml(p.asignado.split(' ')[0])}</span>` : ''}
+            ${p.asignado ? `<span class="${assigneeClass(p.asignado)}">${escapeHtml(p.asignado.split(' ')[0])}</span>` : ''}
             ${p.linkBrief ? `<span class="card-assignee">📎 brief</span>` : ''}
           </div>
           <div class="card-meta">
