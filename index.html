@@ -349,6 +349,10 @@
         <label for="nDescripcion">Descripción</label>
         <textarea id="nDescripcion" placeholder="Cuenta qué necesitas, medidas, referencias, textos, etc." required></textarea>
       </div>
+      <div class="field">
+        <label for="nLinkBrief">Link de Drive con el brief (Doc, Sheet, etc.) — opcional</label>
+        <input id="nLinkBrief" type="url" placeholder="https://docs.google.com/…">
+      </div>
       <button type="submit" class="btn btn-primary btn-block">Enviar pedido</button>
     </form>
   </div>
@@ -386,6 +390,10 @@
       <div class="field">
         <label for="dDescripcion">Descripción</label>
         <textarea id="dDescripcion" required></textarea>
+      </div>
+      <div class="field">
+        <label for="dLinkBrief">Link de Drive con el brief (Doc, Sheet, etc.)</label>
+        <input id="dLinkBrief" type="url" placeholder="https://docs.google.com/…">
       </div>
       <div class="field">
         <label for="dAsignado">Diseñador asignado</label>
@@ -557,7 +565,7 @@
   async function notifyEmail(pedido, evento){
     if(evento === 'nuevo'){
       await enviarEmail(config.emailDestino, `Nuevo pedido de diseño: ${pedido.titulo}`,
-        `Solicitante: ${pedido.solicitante}\nEmail: ${pedido.emailSolicitante || '—'}\nTipo: ${pedido.tipo}\nPrioridad: ${pedido.prioridad}\n\n${pedido.descripcion || ''}`, pedido);
+        `Solicitante: ${pedido.solicitante}\nEmail: ${pedido.emailSolicitante || '—'}\nTipo: ${pedido.tipo}\nPrioridad: ${pedido.prioridad}\n\n${pedido.descripcion || ''}${pedido.linkBrief ? `\n\nBrief (Drive): ${pedido.linkBrief}` : ''}`, pedido);
       await enviarEmail(pedido.emailSolicitante, `Recibimos tu pedido: ${pedido.titulo}`,
         `Hola ${pedido.solicitante}, recibimos tu pedido "${pedido.titulo}". Te avisaremos por este medio tan pronto la pieza esté lista.`, pedido);
     } else {
@@ -573,7 +581,7 @@
     const nuevo = {
       titulo:data.titulo, descripcion:data.descripcion, solicitante:data.solicitante,
       emailSolicitante:data.emailSolicitante || '', tipo:data.tipo, prioridad:data.prioridad, fechaLimite:data.fechaLimite || '',
-      estado:'nuevo', link:'', asignado:'', numero:numero, mesPedido:mesPedido, creado:nowIso(), actualizado:nowIso(),
+      estado:'nuevo', link:'', linkBrief:data.linkBrief || '', asignado:'', numero:numero, mesPedido:mesPedido, creado:nowIso(), actualizado:nowIso(),
       notificadoNuevo:false, notificadoListo:false
     };
     try{
@@ -676,6 +684,7 @@
           <div class="card-tags-row">
             <span class="card-tag">${escapeHtml(p.tipo)}</span>
             ${p.asignado ? `<span class="card-assignee">${escapeHtml(p.asignado.split(' ')[0])}</span>` : ''}
+            ${p.linkBrief ? `<span class="card-assignee">📎 brief</span>` : ''}
           </div>
           <div class="card-meta">
             <span>${p.numero ? '#' + p.numero + ' · ' : ''}${escapeHtml(p.solicitante)}${p.link ? ' · <span class="card-link-flag">link ✓</span>' : ''}</span>
@@ -724,7 +733,8 @@
       prioridad: document.getElementById('nPrioridad').value,
       tipo: document.getElementById('nTipo').value,
       fechaLimite: document.getElementById('nFecha').value,
-      descripcion: document.getElementById('nDescripcion').value.trim()
+      descripcion: document.getElementById('nDescripcion').value.trim(),
+      linkBrief: document.getElementById('nLinkBrief').value.trim()
     };
     if(!data.titulo || !data.solicitante || !data.descripcion){
       showToast('Falta completar título, nombre o descripción');
@@ -749,6 +759,7 @@
     document.getElementById('dTipo').value = p.tipo;
     document.getElementById('dFecha').value = p.fechaLimite || '';
     document.getElementById('dDescripcion').value = p.descripcion;
+    document.getElementById('dLinkBrief').value = p.linkBrief || '';
     document.getElementById('dLink').value = p.link || '';
     document.getElementById('dAsignado').value = p.asignado || '';
     detallePrioridadActual = p.prioridad;
@@ -787,6 +798,7 @@
       asignado: document.getElementById('dAsignado').value,
       fechaLimite: document.getElementById('dFecha').value,
       descripcion: document.getElementById('dDescripcion').value.trim(),
+      linkBrief: document.getElementById('dLinkBrief').value.trim(),
       link: document.getElementById('dLink').value.trim(),
       prioridad: detallePrioridadActual,
       estado: detalleEstadoActual
@@ -883,7 +895,7 @@
       config = cfgBackup;
       return;
     }
-    notifyEmail({ titulo:'Pedido de prueba', solicitante:'Vos', emailSolicitante:config.emailDestino, link:'https://ejemplo.com/pieza-final' }, 'listo');
+    notifyEmail({ titulo:'Pedido de prueba', solicitante:'Angela', emailSolicitante:config.emailDestino, link:'https://ejemplo.com/pieza-final' }, 'listo');
     showToast('Email de prueba enviado a ' + config.emailDestino);
     config = cfgBackup;
   });
