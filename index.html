@@ -94,6 +94,12 @@
     outline:none;
   }
   #search:focus{border-color:var(--acento-oscuro);}
+  .month-select{
+    padding:11px 14px;border-radius:999px;border:1px solid rgba(0,31,25,0.12);
+    background:var(--blanco);font-size:13px;color:var(--texto-principal);
+    outline:none;flex-shrink:0;
+  }
+  .month-select:focus{border-color:var(--acento-oscuro);}
   .chip-filters{display:flex;gap:8px;flex-wrap:wrap;}
   .chip{
     border:1px solid rgba(0,31,25,0.15);background:var(--blanco);
@@ -275,6 +281,9 @@
 
   <div class="toolbar">
     <input id="search" type="text" placeholder="Buscar por título o solicitante…">
+    <select id="filtroMes" class="month-select">
+      <option value="all">Todos los meses</option>
+    </select>
     <div class="chip-filters" id="chipFilters">
       <button class="chip active" id="btnTodos">Todos</button>
       <button class="chip" data-group="prioridad" data-filter="Alta">Alta</button>
@@ -503,6 +512,7 @@
   let config = {};
   let filtroPrioridad = 'all';
   let filtroAsignado = 'all';
+  let filtroMes = 'all';
   let textoBusqueda = '';
 
   function nowIso(){ return new Date().toISOString(); }
@@ -664,6 +674,7 @@
   function filtrarPedidos(){
     return pedidos.filter(p => {
       if(filtroPrioridad !== 'all' && p.prioridad !== filtroPrioridad) return false;
+      if(filtroMes !== 'all' && p.mesPedido !== filtroMes) return false;
       if(filtroAsignado !== 'all'){
         if(filtroAsignado === 'Sin asignar' && p.asignado) return false;
         if(filtroAsignado !== 'Sin asignar' && p.asignado !== filtroAsignado) return false;
@@ -674,6 +685,22 @@
       }
       return true;
     });
+  }
+
+  // Arma las opciones del selector de mes a partir de los meses que realmente existen en los pedidos.
+  // Mantiene la selección actual si sigue siendo válida.
+  function poblarFiltroMes(){
+    const select = document.getElementById('filtroMes');
+    const mesesUnicos = [...new Set(pedidos.map(p => p.mesPedido).filter(Boolean))].sort().reverse();
+    const seleccionPrevia = filtroMes;
+    select.innerHTML = '<option value="all">Todos los meses</option>' +
+      mesesUnicos.map(m => `<option value="${m}">${capitalize(fmtMes(m))}</option>`).join('');
+    if(mesesUnicos.includes(seleccionPrevia) || seleccionPrevia === 'all'){
+      select.value = seleccionPrevia;
+    } else {
+      filtroMes = 'all';
+      select.value = 'all';
+    }
   }
 
   function render(){
@@ -859,6 +886,10 @@
     textoBusqueda = e.target.value;
     render();
   });
+  document.getElementById('filtroMes').addEventListener('change', e => {
+    filtroMes = e.target.value;
+    render();
+  });
   document.getElementById('chipFilters').addEventListener('click', e => {
     const btn = e.target.closest('.chip');
     if(!btn) return;
@@ -923,6 +954,7 @@
       pedidos = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
       document.getElementById('loadingRow').style.display = 'none';
       document.getElementById('board').style.display = 'flex';
+      poblarFiltroMes();
       render();
     }, err => {
       console.error('listener error', err);
