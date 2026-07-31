@@ -166,7 +166,7 @@
   .card-assignee{
     display:inline-block;font-family:'Gabarito',Arial,sans-serif;font-size:10.5px;font-weight:600;
     color:var(--verde-oscuro);background:var(--blanco);border:1px solid rgba(0,31,25,0.15);
-    padding:3px 9px;border-radius:8px;
+    padding:3px 9px;border-radius:8px;text-decoration:none;
   }
   .card-assignee-angela{ background:#001F19; border-color:#6BE3D7; color:#6BE3D7; }
   .card-assignee-marian{ background:#001F19; border-color:#AEA7F9; color:#AEA7F9; }
@@ -177,7 +177,7 @@
   .stage-tracker{display:flex;align-items:center;gap:4px;}
   .stage-dot{width:6px;height:6px;border-radius:50%;background:rgba(0,31,25,0.15);}
   .stage-dot.filled{background:var(--acento-oscuro);}
-  .card-link-flag{color:var(--acento-oscuro2);font-weight:600;}
+  .card-link-flag{color:var(--acento-oscuro2);font-weight:600;text-decoration:none;}
   .card-overdue{color:var(--acento-oscuro2);font-weight:700;}
 
   /* ---------- Overlay / Modal ---------- */
@@ -332,6 +332,19 @@
           <input id="nSolicitante" type="text" placeholder="Quién pide esto" required>
         </div>
         <div class="field">
+          <label for="nArea">Área</label>
+          <select id="nArea">
+            <option>Marketing</option>
+            <option>People</option>
+            <option>Tech</option>
+            <option>OPS</option>
+            <option>Educación</option>
+            <option>Sales</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
           <label for="nPrioridad">Prioridad</label>
           <select id="nPrioridad">
             <option value="Baja">Baja</option>
@@ -339,10 +352,10 @@
             <option value="Alta">Alta</option>
           </select>
         </div>
-      </div>
-      <div class="field">
-        <label for="nEmail">Tu email (para avisarte cuando esté lista)</label>
-        <input id="nEmail" type="email" placeholder="tunombre@empresa.com">
+        <div class="field">
+          <label for="nEmail">Tu email (para avisarte cuando esté lista)</label>
+          <input id="nEmail" type="email" placeholder="tunombre@empresa.com">
+        </div>
       </div>
       <div class="field-row">
         <div class="field">
@@ -584,7 +597,7 @@
   async function notifyEmail(pedido, evento){
     if(evento === 'nuevo'){
       await enviarEmail(config.emailDestino, `Nuevo pedido de diseño: ${pedido.titulo}`,
-        `Solicitante: ${pedido.solicitante}\nEmail: ${pedido.emailSolicitante || '—'}\nTipo: ${pedido.tipo}\nPrioridad: ${pedido.prioridad}\n\n${pedido.descripcion || ''}${pedido.linkBrief ? `\n\nBrief (Drive): ${pedido.linkBrief}` : ''}`, pedido);
+        `Solicitante: ${pedido.solicitante}\nÁrea: ${pedido.area || '—'}\nEmail: ${pedido.emailSolicitante || '—'}\nTipo: ${pedido.tipo}\nPrioridad: ${pedido.prioridad}\n\n${pedido.descripcion || ''}${pedido.linkBrief ? `\n\nBrief (Drive): ${pedido.linkBrief}` : ''}`, pedido);
       await enviarEmail(pedido.emailSolicitante, `Recibimos tu pedido: ${pedido.titulo}`,
         `Hola ${pedido.solicitante}, recibimos tu pedido "${pedido.titulo}". Te avisaremos por este medio tan pronto la pieza esté lista.`, pedido);
     } else {
@@ -598,7 +611,7 @@
     const mesPedido = nowMonthKey();
     const numero = await obtenerSiguienteNumero(mesPedido);
     const nuevo = {
-      titulo:data.titulo, descripcion:data.descripcion, solicitante:data.solicitante,
+      titulo:data.titulo, descripcion:data.descripcion, solicitante:data.solicitante, area:data.area,
       emailSolicitante:data.emailSolicitante || '', tipo:data.tipo, prioridad:data.prioridad, fechaLimite:data.fechaLimite || '',
       estado:'nuevo', link:'', linkBrief:data.linkBrief || '', asignado:'', numero:numero, mesPedido:mesPedido, creado:nowIso(), actualizado:nowIso(),
       notificadoNuevo:false, notificadoListo:false
@@ -725,11 +738,12 @@
           </div>
           <div class="card-tags-row">
             <span class="card-tag">${escapeHtml(p.tipo)}</span>
+            ${p.area ? `<span class="card-tag">${escapeHtml(p.area)}</span>` : ''}
             ${p.asignado ? `<span class="${assigneeClass(p.asignado)}">${escapeHtml(p.asignado.split(' ')[0])}</span>` : ''}
-            ${p.linkBrief ? `<span class="card-assignee">📎 brief</span>` : ''}
+            ${p.linkBrief ? `<a href="${p.linkBrief}" target="_blank" rel="noopener noreferrer" class="card-assignee" draggable="false" onclick="event.stopPropagation()">📎 brief</a>` : ''}
           </div>
           <div class="card-meta">
-            <span>${p.numero ? '#' + p.numero + ' · ' : ''}${escapeHtml(p.solicitante)}${p.link ? ' · <span class="card-link-flag">link ✓</span>' : ''}</span>
+            <span>${p.numero ? '#' + p.numero + ' · ' : ''}${escapeHtml(p.solicitante)}${p.link ? ` · <a href="${p.link}" target="_blank" rel="noopener noreferrer" class="card-link-flag" onclick="event.stopPropagation()">link ✓</a>` : ''}</span>
             <div class="stage-tracker">${stageTrackerHtml(p.estado)}</div>
           </div>
           <div class="card-meta" style="margin-top:4px;"><span>Creado: ${fmtFecha(p.creado)}</span></div>
@@ -771,6 +785,7 @@
     const data = {
       titulo: document.getElementById('nTitulo').value.trim(),
       solicitante: document.getElementById('nSolicitante').value.trim(),
+      area: document.getElementById('nArea').value,
       emailSolicitante: document.getElementById('nEmail').value.trim(),
       prioridad: document.getElementById('nPrioridad').value,
       tipo: document.getElementById('nTipo').value,
@@ -810,7 +825,7 @@
     marcarSegmented('segEstado', detalleEstadoActual);
     document.getElementById('detMeta').innerHTML =
       `<span><strong>N.° de pedido:</strong> ${p.numero ? '#' + p.numero + ' · ' + fmtMes(p.mesPedido) : 'sin asignar'}</span>` +
-      `<span><strong>Solicitante:</strong> ${escapeHtml(p.solicitante)}${p.emailSolicitante ? ' · ' + escapeHtml(p.emailSolicitante) : ' · sin email cargado'}</span>` +
+      `<span><strong>Solicitante:</strong> ${escapeHtml(p.solicitante)}${p.area ? ' · ' + escapeHtml(p.area) : ''}${p.emailSolicitante ? ' · ' + escapeHtml(p.emailSolicitante) : ' · sin email cargado'}</span>` +
       `<span><strong>Creado:</strong> ${fmtFecha(p.creado)} · <strong>Actualizado:</strong> ${fmtFecha(p.actualizado)}</span>`;
     openOverlay('overlayDetalle');
   }
