@@ -67,7 +67,7 @@
   .btn{
     border:none;border-radius:999px;padding:11px 20px;
     font-family:'Poppins',Arial,sans-serif;font-weight:600;font-size:13.5px;
-    display:inline-flex;align-items:center;gap:6px;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
     transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
   }
   .btn-primary{background:var(--acento-oscuro2);color:var(--blanco);}
@@ -759,10 +759,15 @@
           </div>
           <div class="card-meta">
             <span>${p.numero ? '#' + p.numero + ' · ' : ''}${escapeHtml(p.solicitante)}${p.link ? ` · <a href="${p.link}" target="_blank" rel="noopener noreferrer" class="card-link-flag" onclick="event.stopPropagation()">link ✓</a>` : ''}</span>
-            <div class="stage-tracker">${stageTrackerHtml(p.estado)}</div>
           </div>
-          <div class="card-meta" style="margin-top:4px;"><span>Creado: ${fmtFecha(p.creado)}</span></div>
-          ${p.fechaLimite ? `<div class="card-meta" style="margin-top:4px;"><span class="${esVencido(p) ? 'card-overdue':''}">${esVencido(p) ? '⚠ ' : ''}Vence ${fmtFecha(p.fechaLimite)}</span></div>` : ''}
+          <div class="card-meta" style="margin-top:4px;">
+            <span>Creado: ${fmtFecha(p.creado)}</span>
+            ${!p.fechaLimite ? `<div class="stage-tracker">${stageTrackerHtml(p.estado)}</div>` : ''}
+          </div>
+          ${p.fechaLimite ? `<div class="card-meta" style="margin-top:4px;">
+            <span class="${esVencido(p) ? 'card-overdue':''}">${esVencido(p) ? '⚠ ' : ''}Vence ${fmtFecha(p.fechaLimite)}</span>
+            <div class="stage-tracker">${stageTrackerHtml(p.estado)}</div>
+          </div>` : ''}
         </div>
       `).join('');
     });
