@@ -359,7 +359,7 @@
         </div>
         <div class="field">
           <label for="nEmail">Tu email (para avisarte cuando esté lista)</label>
-          <input id="nEmail" type="email" placeholder="tunombre@empresa.com">
+          <input id="nEmail" type="email" placeholder="tunombre@empresa.com" required>
         </div>
       </div>
       <div class="field-row">
@@ -814,8 +814,8 @@
       descripcion: document.getElementById('nDescripcion').value.trim(),
       linksBrief: parsearLinks(document.getElementById('nLinkBrief').value)
     };
-    if(!data.titulo || !data.solicitante || !data.descripcion){
-      showToast('Falta completar título, nombre o descripción');
+    if(!data.titulo || !data.solicitante || !data.descripcion || !data.emailSolicitante){
+      showToast('Falta completar título, nombre, email o descripción');
       return;
     }
     const btn = e.target.querySelector('button[type=submit]');
