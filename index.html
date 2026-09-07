@@ -182,7 +182,14 @@
   .stage-tracker{display:flex;align-items:center;gap:4px;}
   .stage-dot{width:6px;height:6px;border-radius:50%;background:rgba(0,31,25,0.15);}
   .stage-dot.filled{background:var(--acento-oscuro);}
-  .card-link-flag{color:var(--acento-oscuro2);font-weight:600;text-decoration:none;}
+  .card-final-link{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    background:var(--acento-oscuro2);color:var(--blanco);
+    font-family:'Poppins',Arial,sans-serif;font-weight:700;font-size:12px;
+    padding:8px 12px;border-radius:10px;margin-bottom:9px;text-decoration:none;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card-final-link:hover{transform:translateY(-1px);box-shadow:var(--shadow);}
   .card-overdue{color:var(--acento-oscuro2);font-weight:700;}
 
   /* ---------- Overlay / Modal ---------- */
@@ -762,8 +769,9 @@
             ${p.asignado ? `<span class="${assigneeClass(p.asignado)}">${escapeHtml(p.asignado.split(' ')[0])}</span>` : ''}
             ${briefLinks(p).map((url, i) => `<a href="${url}" target="_blank" rel="noopener noreferrer" class="card-assignee" draggable="false" onclick="event.stopPropagation()">📎 brief${briefLinks(p).length > 1 ? ' ' + (i+1) : ''}</a>`).join('')}
           </div>
+          ${p.link ? `<a href="${p.link}" target="_blank" rel="noopener noreferrer" class="card-final-link" draggable="false" onclick="event.stopPropagation()">🔗 Ver pieza final</a>` : ''}
           <div class="card-meta">
-            <span>${p.numero ? '#' + p.numero + ' · ' : ''}${escapeHtml(p.solicitante)}${p.link ? ` · <a href="${p.link}" target="_blank" rel="noopener noreferrer" class="card-link-flag" onclick="event.stopPropagation()">link ✓</a>` : ''}</span>
+            <span>${p.numero ? '#' + p.numero + ' · ' : ''}${escapeHtml(p.solicitante)}</span>
           </div>
           <div class="card-meta" style="margin-top:4px;">
             <span>Creado: ${fmtFecha(p.creado)}</span>
