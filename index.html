@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Poppins:wght@400;600;700&family=Mulish:wght@400;500;600&family=Gabarito:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css" />
 <style>
   :root{
     --verde-oscuro:#001F19;
@@ -209,6 +210,7 @@
   .btn-close{
     background:none;border:none;font-size:16px;color:var(--texto-muted);
     width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
   }
   .btn-close:hover{background:var(--menta-claro);}
   .field{margin-bottom:14px;}
@@ -286,8 +288,8 @@
       </div>
     </div>
     <div class="actions">
-      <button id="btnSettings" class="btn btn-ghost" title="Configurar notificaciones" aria-label="Configuración">⚙</button>
-      <button id="btnNuevo" class="btn btn-primary">+ Nuevo pedido</button>
+      <button id="btnSettings" class="btn btn-ghost" title="Configurar notificaciones" aria-label="Configuración"><i class="ph-bold ph-gear"></i></button>
+      <button id="btnNuevo" class="btn btn-primary"><i class="ph-bold ph-plus"></i> Nuevo pedido</button>
     </div>
   </header>
 
@@ -332,7 +334,7 @@
 <!-- Modal: Nuevo pedido -->
 <div class="overlay" id="overlayNuevo">
   <div class="modal">
-    <div class="modal-header"><h3>Nuevo pedido</h3><button class="btn-close" data-close="overlayNuevo">✕</button></div>
+    <div class="modal-header"><h3>Nuevo pedido</h3><button class="btn-close" data-close="overlayNuevo"><i class="ph-bold ph-x"></i></button></div>
     <form id="formNuevo">
       <div class="field">
         <label for="nTitulo">Título del pedido</label>
@@ -405,7 +407,7 @@
 <!-- Modal: Detalle / edición -->
 <div class="overlay" id="overlayDetalle">
   <div class="modal">
-    <div class="modal-header"><h3>Detalle del pedido</h3><button class="btn-close" data-close="overlayDetalle">✕</button></div>
+    <div class="modal-header"><h3>Detalle del pedido</h3><button class="btn-close" data-close="overlayDetalle"><i class="ph-bold ph-x"></i></button></div>
     <div class="meta-box" id="detMeta"></div>
     <form id="formDetalle">
       <input type="hidden" id="dId">
@@ -482,7 +484,7 @@
 <!-- Modal: Configuración -->
 <div class="overlay" id="overlaySettings">
   <div class="modal">
-    <div class="modal-header"><h3>Notificaciones</h3><button class="btn-close" data-close="overlaySettings">✕</button></div>
+    <div class="modal-header"><h3>Notificaciones</h3><button class="btn-close" data-close="overlaySettings"><i class="ph-bold ph-x"></i></button></div>
 
     <div class="settings-section">
       <h4>Email (vía EmailJS)</h4>
@@ -767,9 +769,9 @@
             <span class="card-tag">${escapeHtml(p.tipo)}</span>
             ${p.area ? `<span class="card-tag card-tag-area">${escapeHtml(p.area)}</span>` : ''}
             ${p.asignado ? `<span class="${assigneeClass(p.asignado)}">${escapeHtml(p.asignado.split(' ')[0])}</span>` : ''}
-            ${briefLinks(p).map((url, i) => `<a href="${url}" target="_blank" rel="noopener noreferrer" class="card-assignee" draggable="false" onclick="event.stopPropagation()">📎 brief${briefLinks(p).length > 1 ? ' ' + (i+1) : ''}</a>`).join('')}
+            ${briefLinks(p).map((url, i) => `<a href="${url}" target="_blank" rel="noopener noreferrer" class="card-assignee" draggable="false" onclick="event.stopPropagation()"><i class="ph-bold ph-paperclip"></i> brief${briefLinks(p).length > 1 ? ' ' + (i+1) : ''}</a>`).join('')}
           </div>
-          ${p.link ? `<a href="${p.link}" target="_blank" rel="noopener noreferrer" class="card-final-link" draggable="false" onclick="event.stopPropagation()">🔗 Ver pieza final</a>` : ''}
+          ${p.link ? `<a href="${p.link}" target="_blank" rel="noopener noreferrer" class="card-final-link" draggable="false" onclick="event.stopPropagation()"><i class="ph-bold ph-link"></i> Ver pieza final</a>` : ''}
           <div class="card-meta">
             <span>${p.numero ? '#' + p.numero + ' · ' : ''}${escapeHtml(p.solicitante)}</span>
           </div>
@@ -778,7 +780,7 @@
             ${!p.fechaLimite ? `<div class="stage-tracker">${stageTrackerHtml(p.estado)}</div>` : ''}
           </div>
           ${p.fechaLimite ? `<div class="card-meta" style="margin-top:4px;">
-            <span class="${esVencido(p) ? 'card-overdue':''}">${esVencido(p) ? '⚠ ' : ''}Vence ${fmtFecha(p.fechaLimite)}</span>
+            <span class="${esVencido(p) ? 'card-overdue':''}">${esVencido(p) ? '<i class="ph-bold ph-warning"></i> ' : ''}Vence ${fmtFecha(p.fechaLimite)}</span>
             <div class="stage-tracker">${stageTrackerHtml(p.estado)}</div>
           </div>` : ''}
         </div>
