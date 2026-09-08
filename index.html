@@ -472,6 +472,10 @@
         <label for="dLink">Link de la pieza final</label>
         <input id="dLink" type="url" placeholder="https://…">
       </div>
+      <div class="field">
+        <label for="dLinkEditable">Link de pieza editable</label>
+        <input id="dLinkEditable" type="url" placeholder="https://…">
+      </div>
       <div class="help-text">Al pasar el pedido a <strong>Listo</strong> con un link cargado, se dispara la notificación automática con el link.</div>
       <div class="modal-footer">
         <button type="button" id="btnEliminar" class="btn btn-danger-outline">Eliminar</button>
@@ -770,6 +774,7 @@
             ${p.area ? `<span class="card-tag card-tag-area">${escapeHtml(p.area)}</span>` : ''}
             ${p.asignado ? `<span class="${assigneeClass(p.asignado)}">${escapeHtml(p.asignado.split(' ')[0])}</span>` : ''}
             ${briefLinks(p).map((url, i) => `<a href="${url}" target="_blank" rel="noopener noreferrer" class="card-assignee" draggable="false" onclick="event.stopPropagation()"><i class="ph-bold ph-paperclip"></i> brief${briefLinks(p).length > 1 ? ' ' + (i+1) : ''}</a>`).join('')}
+            ${p.linkEditable ? `<a href="${p.linkEditable}" target="_blank" rel="noopener noreferrer" class="card-assignee" draggable="false" onclick="event.stopPropagation()"><i class="ph-bold ph-pencil-simple-line"></i> editable</a>` : ''}
           </div>
           ${p.link ? `<a href="${p.link}" target="_blank" rel="noopener noreferrer" class="card-final-link" draggable="false" onclick="event.stopPropagation()"><i class="ph-bold ph-link"></i> Ver pieza final</a>` : ''}
           <div class="card-meta">
@@ -853,6 +858,7 @@
     document.getElementById('dDescripcion').value = p.descripcion;
     document.getElementById('dLinkBrief').value = briefLinks(p).join('\n');
     document.getElementById('dLink').value = p.link || '';
+    document.getElementById('dLinkEditable').value = p.linkEditable || '';
     document.getElementById('dAsignado').value = p.asignado || '';
     detallePrioridadActual = p.prioridad;
     detalleEstadoActual = p.estado;
@@ -892,6 +898,7 @@
       descripcion: document.getElementById('dDescripcion').value.trim(),
       linksBrief: parsearLinks(document.getElementById('dLinkBrief').value),
       link: document.getElementById('dLink').value.trim(),
+      linkEditable: document.getElementById('dLinkEditable').value.trim(),
       prioridad: detallePrioridadActual,
       estado: detalleEstadoActual
     };
