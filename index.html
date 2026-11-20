@@ -742,6 +742,12 @@
   // Las solicitudes de revisión (tipoSolicitud === 'revision') llevan textos propios.
   async function notifyEmail(pedido, evento){
     const esRev = pedido.tipoSolicitud === 'revision';
+    // Un pedido acaba de pasar a la columna "Revisión diseño": avisa al equipo.
+    if(evento === 'revision'){
+      await enviarEmail(config.emailDestino, `Pedido en Revisión diseño${pedido.publicoExterno ? ' (público externo)' : ''}: ${pedido.titulo}`,
+        `Este pedido acaba de pasar a la columna Revisión diseño.\n\nPedido: ${pedido.numero ? '#' + pedido.numero + ' · ' : ''}${pedido.titulo}\nSolicitante: ${pedido.solicitante}\nÁrea: ${pedido.area || '—'}\nEmail: ${pedido.emailSolicitante || '—'}\nTipo: ${pedido.tipo}\nUrgencia: ${pedido.prioridad}\nSale al aire: ${pedido.fechaLimite ? fmtFecha(pedido.fechaLimite) : 'sin fecha definida'}\nPúblico externo: ${pedido.publicoExterno ? 'Sí' : 'No'}\nAsignado a: ${pedido.asignado || 'sin asignar'}${pedido.fuenteIA ? `\nGenerada en: ${pedido.fuenteIA}` : ''}\n\nLinks:\n${briefLinks(pedido).join('\n') || '—'}${pedido.linkEditable ? `\n\nArchivo editable:\n${pedido.linkEditable}` : ''}${pedido.descripcion ? `\n\nDetalle:\n${pedido.descripcion}` : ''}\n\nVer el tablero:\n${location.href.split('#')[0]}`, pedido);
+      return;
+    }
     if(evento === 'nuevo'){
       if(esRev){
         await enviarEmail(config.emailDestino, `Nueva pieza para revisión de Diseño${pedido.publicoExterno ? ' (público externo)' : ''}: ${pedido.titulo}`,
@@ -791,10 +797,15 @@
 
   async function actualizarPedido(id, cambios){
     try{
+      const previo = pedidos.find(x => x.id === id);
       const payload = {...cambios, actualizado:nowIso()};
       await db.collection('pedidos').doc(id).update(payload);
       const snap = await db.collection('pedidos').doc(id).get();
       const actualizado = {...snap.data(), id};
+      // Cada vez que un pedido entra a la columna Revisión diseño (desde otra), llega un aviso al equipo.
+      if(actualizado.estado === 'revision' && previo && previo.estado !== 'revision' && !actualizado.cancelado){
+        notifyEmail(actualizado, 'revision');
+      }
       if(actualizado.estado === 'listo' && actualizado.link && !actualizado.notificadoListo && !actualizado.cancelado){
         notifyEmail(actualizado, 'listo');
         db.collection('pedidos').doc(id).update({ notificadoListo:true }).catch(e => console.error(e));
