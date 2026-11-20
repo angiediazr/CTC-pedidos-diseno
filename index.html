@@ -483,13 +483,14 @@
         </div>
       </div>
       <div class="field">
-        <label for="rLinkPieza">Link de la pieza a revisar (presentación, imagen, PDF…)</label>
-        <textarea id="rLinkPieza" placeholder="Pega uno o más, uno por línea&#10;https://…" style="min-height:56px;" required></textarea>
+        <label for="rLinkPieza">Link de la pieza a revisar (presentación, imagen, PDF…) — opcional</label>
+        <textarea id="rLinkPieza" placeholder="Pega uno o más, uno por línea&#10;Si la pasaste por Discord o no tiene link, déjalo vacío y cuéntanos abajo dónde está" style="min-height:56px;"></textarea>
       </div>
       <div class="field-row">
         <div class="field">
           <label for="rFuente">¿Dónde se generó?</label>
           <select id="rFuente">
+            <option value="">Selecciona…</option>
             <option>Gamma</option>
             <option>Canva</option>
             <option>ChatGPT</option>
@@ -498,21 +499,22 @@
             <option>NotebookLM</option>
             <option>Google Slides</option>
             <option>PowerPoint</option>
+            <option>Discord / PDF</option>
             <option>Otra herramienta</option>
           </select>
         </div>
         <div class="field">
-          <label for="rLinkFuente">Link al archivo editable</label>
-          <input id="rLinkFuente" type="url" placeholder="https://…" required>
+          <label for="rLinkFuente">Link al archivo editable (opcional)</label>
+          <input id="rLinkFuente" type="url" placeholder="https://…">
         </div>
       </div>
-      <div class="help-text">Lo necesitamos para poder ajustar los últimos detalles directamente en el archivo original.</div>
+      <div class="help-text">Si tienes el archivo editable, compártelo: así podemos ajustar los últimos detalles directamente en el original.</div>
       <div class="field">
         <label class="check-label"><input type="checkbox" id="rExterno"> La verá público externo (clientes, aliados, redes públicas)</label>
       </div>
       <div class="field">
-        <label for="rDescripcion">¿Qué quieres que revisemos? (opcional)</label>
-        <textarea id="rDescripcion" placeholder="Ej: es para un comité con aliados, preocupa la tipografía y los colores"></textarea>
+        <label for="rDescripcion">¿Qué quieres que revisemos? (obligatorio si no hay link de la pieza)</label>
+        <textarea id="rDescripcion" placeholder="Ej: es para un comité con aliados, preocupa la tipografía. Si no hay link, cuéntanos dónde está la pieza (canal de Discord, fecha del mensaje, PDF enviado…)"></textarea>
       </div>
       <button type="submit" class="btn btn-primary btn-block">Enviar a revisión</button>
     </form>
@@ -986,12 +988,18 @@
       fuenteIA: document.getElementById('rFuente').value,
       linkEditable: document.getElementById('rLinkFuente').value.trim(),
       publicoExterno: document.getElementById('rExterno').checked,
-      descripcion: document.getElementById('rDescripcion').value.trim() || 'Revisión final de la pieza antes de salir al aire.'
+      descripcion: document.getElementById('rDescripcion').value.trim()
     };
-    if(!data.titulo || !data.solicitante || !data.emailSolicitante || !data.linksBrief.length || !data.linkEditable){
-      showToast('Falta completar nombre, email, link de la pieza o link editable');
+    if(!data.titulo || !data.solicitante || !data.emailSolicitante){
+      showToast('Falta completar nombre de la pieza, tu nombre o tu email');
       return;
     }
+    // Sin link tiene que haber una descripción que diga dónde está la pieza (Discord, PDF, etc.)
+    if(!data.linksBrief.length && !data.descripcion){
+      showToast('Si no hay link, cuéntanos en la descripción dónde está la pieza');
+      return;
+    }
+    if(!data.descripcion) data.descripcion = 'Revisión final de la pieza antes de salir al aire.';
     const btn = e.target.querySelector('button[type=submit]');
     btn.disabled = true;
     const ok = await crearPedido(data);
